@@ -289,7 +289,7 @@ namespace NHttp
                 throw new ArgumentNullException("client");
 
 #if DEBUG
-            Debug.WriteLine("Unregister client " + client.ToString());
+            Debug.WriteLine("Register client " + client.ToString());
 #endif
 
             lock (_syncLock)
