@@ -6,6 +6,10 @@ using System.Net;
 using System.Text;
 using NHttp.Test.Support;
 using NUnit.Framework;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Reflection;
+using System.Collections;
 
 namespace NHttp.Test.WebRequestFixtures
 {
@@ -16,117 +20,109 @@ namespace NHttp.Test.WebRequestFixtures
         private static readonly CultureInfo DateCulture = new CultureInfo("en-US");
 
         [Test]
-        public void SetCookie()
+        public async Task SetCookie()
         {
-            using (var server = new HttpServer())
+            using var server = new HttpServer();
+            server.RequestReceived += (sender, e) =>
             {
-                server.RequestReceived += (s, e) =>
-                {
-                    e.Response.Cookies["a"].Value = "b";
-                };
+                e.Response.Cookies["a"].Value = "b";
+            };
+            server.Start();
 
-                server.Start();
+            var requestUri = new Uri($"http://{server.EndPoint}/");
 
-                var request = (HttpWebRequest)WebRequest.Create(
-                    String.Format("http://{0}/", server.EndPoint)
-                );
+            using var handler = new HttpClientHandler();
+            using var client = new HttpClient(handler);
+            using var response = await client.GetAsync(requestUri);
 
-                request.CookieContainer = new CookieContainer();
+            string setCookieHeader = response.Headers.GetValues("Set-Cookie").FirstOrDefault();
+            Assert.AreEqual("a=b; path=/", setCookieHeader);
+            var cookies = handler.CookieContainer.GetCookies(requestUri);
+            Assert.AreEqual(1, cookies.Count);
 
-                using (var response = (HttpWebResponse)request.GetResponse())
-                {
-                    Assert.AreEqual("a=b; path=/", response.Headers["Set-Cookie"]);
-                    Assert.AreEqual(1, response.Cookies.Count);
 
-                    var cookie = response.Cookies[0];
-
-                    Assert.AreEqual("a", cookie.Name);
-                    Assert.AreEqual("b", cookie.Value);
-                    Assert.AreEqual("/", cookie.Path);
-                    Assert.AreEqual(server.EndPoint.Address.ToString(), cookie.Domain);
-                    Assert.AreEqual(DateTime.MinValue, cookie.Expires);
-                    Assert.AreEqual(false, cookie.HttpOnly);
-                    Assert.AreEqual(false, cookie.Secure);
-                }
-            }
+            var cookie = cookies[0];
+            Assert.AreEqual("a", cookie.Name);
+            Assert.AreEqual("b", cookie.Value);
+            Assert.AreEqual("/", cookie.Path);
+            Assert.AreEqual(server.EndPoint.Address.ToString(), cookie.Domain);
+            Assert.AreEqual(DateTime.MinValue, cookie.Expires);
+            Assert.AreEqual(false, cookie.HttpOnly);
+            Assert.AreEqual(false, cookie.Secure);
         }
 
         [Test]
-        public void SetCookieWithDetails()
+        public async Task SetCookieWithDetails()
         {
-            using (var server = new HttpServer())
+            var expires = DateTime.Now + TimeSpan.FromDays(1);
+            expires -= TimeSpan.FromMilliseconds(expires.Millisecond);
+
+            using var server = new HttpServer();
+            server.RequestReceived += (sender, e) =>
             {
-                var expires = DateTime.Now + TimeSpan.FromDays(1);
-
-                expires = expires - TimeSpan.FromMilliseconds(expires.Millisecond);
-
-                server.RequestReceived += (s, e) =>
+                var cookie = new HttpCookie("a", "b")
                 {
-                    var cookie = new HttpCookie("a", "b");
+                    Path = "/path",
+                    HttpOnly = true,
 
-                    cookie.Path = "/path";
-                    cookie.HttpOnly = true;
-                    cookie.Secure = true;
-                    cookie.Expires = expires;
+                    // if this flag is set, the cookie will be hoarded by the HttpClientHandler
+                    // becuase this isn't a HTTPS connection
+                    Secure = false,
 
-                    e.Response.Cookies.Add(cookie);
+                    Expires = expires
                 };
 
-                server.Start();
+                e.Response.Cookies.Add(cookie);
+            };
+            server.Start();
 
-                var request = (HttpWebRequest)WebRequest.Create(
-                    String.Format("http://{0}/path", server.EndPoint)
-                );
+            var requestUri = new Uri($"http://{server.EndPoint}/path");
 
-                request.CookieContainer = new CookieContainer();
+            using var handler = new HttpClientHandler();
+            using var client = new HttpClient(handler);
+            using var response = await client.GetAsync(requestUri);
 
-                using (var response = (HttpWebResponse)request.GetResponse())
-                {
-                    Assert.AreEqual("a=b; expires=" + expires.ToString(DateFormat, DateCulture) + "; path=/path; secure; HttpOnly", response.Headers["Set-Cookie"]);
- 
-                    Assert.AreEqual(1, response.Cookies.Count);
+            string setCookieHeader = response.Headers.GetValues("Set-Cookie").FirstOrDefault();
+            Assert.AreEqual("a=b; expires=" + expires.ToString(DateFormat, DateCulture) + "; path=/path; HttpOnly", setCookieHeader);
+            var cookies = handler.CookieContainer.GetCookies(requestUri);
+            Assert.AreEqual(1, cookies.Count);
 
-                    var cookie = response.Cookies[0];
 
-                    Assert.AreEqual("a", cookie.Name);
-                    Assert.AreEqual("b", cookie.Value);
-                    Assert.AreEqual("/path", cookie.Path);
-                    Assert.AreEqual(expires.ToString(CultureInfo.InvariantCulture), cookie.Expires.ToUniversalTime().ToString(CultureInfo.InvariantCulture));
-                    Assert.AreEqual(true, cookie.HttpOnly);
-                    Assert.AreEqual(true, cookie.Secure);
-                }
-            }
+            var cookie = cookies[0];
+            Assert.AreEqual("a", cookie.Name);
+            Assert.AreEqual("b", cookie.Value);
+            Assert.AreEqual("/path", cookie.Path);
+            Assert.AreEqual(expires.ToString(CultureInfo.InvariantCulture), cookie.Expires.ToUniversalTime().ToString(CultureInfo.InvariantCulture));
+            Assert.AreEqual(true, cookie.HttpOnly);
+            Assert.AreEqual(false, cookie.Secure);
         }
 
         [Test]
-        public void SetCookieWithDomain()
+        public async Task SetCookieWithDomain()
         {
-            using (var server = new HttpServer())
+            var expires = DateTime.Now + TimeSpan.FromDays(1);
+            expires -= TimeSpan.FromMilliseconds(expires.Millisecond);
+
+            using var server = new HttpServer();
+            server.RequestReceived += (sender, e) =>
             {
-                var expires = DateTime.Now + TimeSpan.FromDays(1);
-
-                expires = expires - TimeSpan.FromMilliseconds(expires.Millisecond);
-
-                server.RequestReceived += (s, e) =>
+                var cookie = new HttpCookie("a", "b")
                 {
-                    var cookie = new HttpCookie("a", "b");
-
-                    cookie.Domain = "example.com";
-
-                    e.Response.Cookies.Add(cookie);
+                    Domain = "example.com"
                 };
 
-                server.Start();
+                e.Response.Cookies.Add(cookie);
+            };
+            server.Start();
 
-                var request = (HttpWebRequest)WebRequest.Create(
-                    String.Format("http://{0}/path", server.EndPoint)
-                );
+            var requestUri = new Uri($"http://{server.EndPoint}/path");
 
-                using (var response = (HttpWebResponse)request.GetResponse())
-                {
-                    Assert.AreEqual("a=b; domain=example.com; path=/", response.Headers["Set-Cookie"]);
-                }
-            }
+            using var handler = new HttpClientHandler();
+            using var client = new HttpClient(handler);
+            using var response = await client.GetAsync(requestUri);
+
+            string setCookieHeader = response.Headers.GetValues("Set-Cookie").FirstOrDefault();
+            Assert.AreEqual("a=b; domain=example.com; path=/", setCookieHeader);
         }
 
         [Test]
@@ -150,27 +146,14 @@ namespace NHttp.Test.WebRequestFixtures
 
                 using (var response = (HttpWebResponse)request.GetResponse())
                 {
-                    Assert.AreEqual("a=b; path=/,c=d; path=/", response.Headers["Set-Cookie"]);
+                    Assert.AreEqual("a=b; path=/, c=d; path=/", response.Headers["Set-Cookie"]);
 
                     Assert.AreEqual(2, response.Cookies.Count);
 
-                    for (int i = 0; i < response.Cookies.Count; i++)
-                    {
-                        var cookie = response.Cookies[i];
-
-                        switch (i)
-                        {
-                            case 0:
-                                Assert.AreEqual("a", cookie.Name);
-                                Assert.AreEqual("b", cookie.Value);
-                                break;
-
-                            case 1:
-                                Assert.AreEqual("c", cookie.Name);
-                                Assert.AreEqual("d", cookie.Value);
-                                break;
-                        }
-                    }
+                    Assert.AreEqual("a", response.Cookies[0].Name);
+                    Assert.AreEqual("b", response.Cookies[0].Value);
+                    Assert.AreEqual("c", response.Cookies[1].Name);
+                    Assert.AreEqual("d", response.Cookies[1].Value);
                 }
             }
         }
