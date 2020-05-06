@@ -17,6 +17,7 @@ namespace NHttp
         private static readonly Regex PrologRegex = new Regex("^([A-Z]+) ([^ ]+) (HTTP/[^ ]+)$", RegexOptions.Compiled);
 
         private bool _disposed;
+        private readonly object _disposeLock = new object();
         private readonly byte[] _writeBuffer;
         private NetworkStream _stream;
         private ClientState _state;
@@ -703,27 +704,30 @@ namespace NHttp
 
         public void Dispose()
         {
-            if (!_disposed)
+            lock (_disposeLock)
             {
-                Server.UnregisterClient(this);
-
-                _state = ClientState.Closed;
-
-                if (_stream != null)
+                if (!_disposed)
                 {
-                    _stream.Dispose();
-                    _stream = null;
+                    Server.UnregisterClient(this);
+
+                    _state = ClientState.Closed;
+
+                    if (_stream != null)
+                    {
+                        _stream.Dispose();
+                        _stream = null;
+                    }
+
+                    if (TcpClient != null)
+                    {
+                        TcpClient.Close();
+                        TcpClient = null;
+                    }
+
+                    Reset();
+
+                    _disposed = true;
                 }
-
-                if (TcpClient != null)
-                {
-                    TcpClient.Close();
-                    TcpClient = null;
-                }
-
-                Reset();
-
-                _disposed = true;
             }
         }
 
