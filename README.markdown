@@ -1,12 +1,19 @@
-# NHttp
+# CNHttp
+
+**Warning: Not a stable release.**
 
 LGPL License.
 
-[Download from NuGet](http://nuget.org/packages/NHttp).
-
 ## Introduction
 
-NHttp is a simple asynchronous HTTP server written in C# for the .NET framework.
+NHttp is a simple asynchronous HTTP server written in C# for the .NET
+framework originally written by
+[Peter van Ginkel](https://github.com/pvginkel).
+
+NHttp supports only .NET Framework. This project aims to (at some
+point) have a functional .NET Core implementation, then later on to
+have the implementation optimized for .NET core using features such
+as Spans
 
 NHttp supports the following features:
 
@@ -79,8 +86,7 @@ version doesn't matter) to your project.
 
 ## Bugs
 
-Bugs should be reported through github at
-[http://github.com/pvginkel/NHttp/issues](http://github.com/pvginkel/NHttp/issues).
+This isn't a stable/public release yet.
 
 ## License
 
