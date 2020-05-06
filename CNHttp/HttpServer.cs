@@ -288,6 +288,10 @@ namespace NHttp
             if (client == null)
                 throw new ArgumentNullException("client");
 
+#if DEBUG
+            Debug.WriteLine("Unregister client " + client.ToString());
+#endif
+
             lock (_syncLock)
             {
                 _clients.Add(client, true);
@@ -300,6 +304,10 @@ namespace NHttp
         {
             if (client == null)
                 throw new ArgumentNullException("client");
+
+#if DEBUG
+            Debug.WriteLine("Unregister client " + client.ToString());
+#endif
 
             lock (_syncLock)
             {

@@ -26,6 +26,12 @@ namespace NHttp
         private HttpContext _context;
         private bool _errored;
 
+#if DEBUG
+        // used to specify a specific httpclient at a glance when debugging
+        private static int _debuggerIdentificationIDCounter = 0;
+        private readonly int _debuggerIdentificationID = ++_debuggerIdentificationIDCounter;
+#endif
+
         public HttpServer Server { get; private set; }
 
         public TcpClient TcpClient { get; private set; }
@@ -730,6 +736,10 @@ namespace NHttp
                 }
             }
         }
+
+#if DEBUG
+        public override string ToString() => _debuggerIdentificationID.ToString("D");
+#endif
 
         private enum ClientState
         {
