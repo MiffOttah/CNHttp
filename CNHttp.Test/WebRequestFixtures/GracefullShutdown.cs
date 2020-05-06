@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using NHttp.Test.Support;
+using NUnit.Framework;
+using System;
 using System.IO;
 using System.Net;
-using System.Text;
 using System.Threading;
-using NHttp.Test.Support;
-using NUnit.Framework;
 
 namespace NHttp.Test.WebRequestFixtures
 {
@@ -38,11 +36,14 @@ namespace NHttp.Test.WebRequestFixtures
 
                 server.Start();
 
-                var request = (HttpWebRequest)WebRequest.Create(
-                    String.Format("http://{0}/", server.EndPoint)
-                );
+                Assert.Throws<WebException>(() =>
+                {
+                    var request = (HttpWebRequest)WebRequest.Create(
+                        $"http://{server.EndPoint}/"
+                    );
 
-                GetResponseFromRequest(request);
+                    GetResponseFromRequest(request);
+                });
             }
         }
     }
