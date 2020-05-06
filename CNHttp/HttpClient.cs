@@ -666,18 +666,29 @@ namespace NHttp
 
                 if (!handled && _context.Response.OutputStream.CanWrite)
                 {
-                    string resourceName = GetType().Namespace + ".Resources.InternalServerError.html";
+                    const string internalServerErrorResponse = @"<html>
+<head><title>Internal Server Error</title></head>
+<body>
+<h1>Internal Server Error</h1>
+<p>An internal server error occurred while processing the request.</p>
+</body>
+</html>";
 
-                    using (var stream = GetType().Assembly.GetManifestResourceStream(resourceName))
-                    {
-                        byte[] buffer = new byte[4096];
-                        int read;
+                    var internalServerErorrBytes = Encoding.ASCII.GetBytes(internalServerErrorResponse);
+                    _context.Response.OutputStream.Write(internalServerErorrBytes, 0, internalServerErorrBytes.Length);
 
-                        while ((read = stream.Read(buffer, 0, buffer.Length)) != 0)
-                        {
-                            _context.Response.OutputStream.Write(buffer, 0, read);
-                        }
-                    }
+                    //string resourceName = GetType().Namespace + ".Resources.InternalServerError.html";
+
+                    //using (var stream = GetType().Assembly.GetManifestResourceStream(resourceName))
+                    //{
+                    //    byte[] buffer = new byte[4096];
+                    //    int read;
+
+                    //    while ((read = stream.Read(buffer, 0, buffer.Length)) != 0)
+                    //    {
+                    //        _context.Response.OutputStream.Write(buffer, 0, read);
+                    //    }
+                    //}
                 }
 
                 WriteResponseHeaders();
