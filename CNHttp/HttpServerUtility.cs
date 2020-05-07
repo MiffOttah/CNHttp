@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Net;
 using System.Text;
 
 namespace NHttp
@@ -16,32 +16,32 @@ namespace NHttp
             get { return Environment.MachineName; }
         }
 
-        public string HtmlEncode(string value)
-        {
-            return HttpUtil.HtmlEncode(value);
-        }
+        [Obsolete("Use the .NET builtin methods in System.Net.WebUtility intead.")]
+        public string UriDecode(string value) => WebUtility.UrlDecode(value ?? throw new ArgumentNullException("value"));
 
-        public string HtmlDecode(string value)
+        [Obsolete("Use the .NET builtin methods in System.Net.WebUtility intead.")]
+        public string UriDecode(string value, Encoding encoding)
         {
-            return HttpUtil.HtmlDecode(value);
-        }
-
-        public string UrlEncode(string text)
-        {
-            return Uri.EscapeDataString(text);
-        }
-
-        public string UrlDecode(string text)
-        {
-            return UrlDecode(text, Encoding.UTF8);
-        }
-
-        public string UrlDecode(string text, Encoding encoding)
-        {
+            if (value == null)
+                throw new ArgumentNullException("value");
             if (encoding == null)
                 throw new ArgumentNullException("encoding");
 
-            return HttpUtil.UriDecode(text, encoding);
+            var encoded = encoding.GetBytes(value);
+            var decoded = WebUtility.UrlDecodeToBytes(encoded, 0, encoded.Length);
+            return encoding.GetString(decoded, 0, decoded.Length);
+        }
+
+        [Obsolete("Use the .NET builtin methods in System.Net.WebUtility intead.")]
+        public string HtmlEncode(string value) => WebUtility.HtmlEncode(value ?? throw new ArgumentNullException("value"));
+
+        [Obsolete("Use the .NET builtin methods in System.Net.WebUtility intead.")]
+        public string HtmlDecode(string value) => WebUtility.HtmlDecode(value ?? throw new ArgumentNullException("value"));
+
+        [Obsolete("Use the .NET builtin methods in System.Net.WebUtility intead.")]
+        public string UrlEncode(string text)
+        {
+            return Uri.EscapeDataString(text);
         }
     }
 }

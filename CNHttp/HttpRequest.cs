@@ -238,52 +238,56 @@ namespace NHttp
         {
             RawUrl = client.Request;
 
-            string[] parts = client.Request.Split(new[] { '?' }, 2);
+            int indexOfQuestionMark = client.Request.IndexOf('?');
+            Path = indexOfQuestionMark == -1 ? client.Request : client.Request.Remove(indexOfQuestionMark);
 
-            Path = parts[0];
+            //string[] parts = client.Request.Split(new[] { '?' }, 2);
 
             QueryString = new NameValueCollection();
-            if (parts.Length == 2)
-                 HttpUtil.UrlDecodeTo(parts[1], QueryString);
+            if (indexOfQuestionMark != -1)
+            {
+                HttpUtil.UrlDecodeTo(client.Request.AsSpan().Slice(indexOfQuestionMark + 1), QueryString);
+            }
 
             string host;
             string port;
 
             if (client.Headers.TryGetValue("Host", out string hostHeader))
             {
-                parts = hostHeader.Split(new[] { ':' }, 2);
+                int indexOfColon = hostHeader.IndexOf(':');
+                //parts = hostHeader.Split(new[] { ':' }, 2);
+                //host = parts[0];
 
-                host = parts[0];
-
-                if (parts.Length == 2)
-                    port = parts[1];
+                if (indexOfColon == -1)
+                {
+                    host = hostHeader.Remove(indexOfColon);
+                    port = hostHeader.Substring(indexOfColon + 1);
+                }
                 else
+                {
+                    host = hostHeader;
                     port = null;
+                }
             }
             else
             {
                 var endPoint = client.Server.EndPoint;
-
                 host = endPoint.Address.ToString();
-
-                if (endPoint.Port == 80)
-                    port = null;
-                else
-                    port = endPoint.Port.ToString(CultureInfo.InvariantCulture);
+                port = (endPoint.Port == 80) ? null : endPoint.Port.ToString(CultureInfo.InvariantCulture);
             }
 
             var sb = new StringBuilder();
 
-            sb.Append("http://");
-            sb.Append(host);
+            sb.Append("http://"); // 7
+            sb.Append(host); // host.Length
 
             if (port != null)
             {
-                sb.Append(':');
-                sb.Append(port);
+                sb.Append(':'); // 1
+                sb.Append(port); // port.Length
             }
 
-            sb.Append(client.Request);
+            sb.Append(client.Request); // client.Request.Length
 
             Url = new Uri(sb.ToString());
         }
