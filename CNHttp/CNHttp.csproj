@@ -2,13 +2,18 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <Version>0.1.9.0</Version>
+    <Version>0.2.0.0-beta1</Version>
     <Authors>Pieter van Ginkel and MiffTheFox</Authors>
     <Company>MiffTheFox</Company>
     <Description>.NET Core port of the NHttp simple asynchronous .NET HTTP server library</Description>
-    <Copyright>Pieter van Ginkel © 2012 - Licensed for porting under the LGPL</Copyright>
+    <Copyright>© Pieter van Ginkel 2012</Copyright>
     <PackageLicenseFile>License.txt</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/MiffOttah/CNHttp</PackageProjectUrl>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <RepositoryUrl>https://github.com/MiffOttah/CNHttp.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>http server nhttp</PackageTags>
+    <PackageReleaseNotes>This is the first "working" release of CNHttp... good luck!</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
