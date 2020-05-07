@@ -68,6 +68,7 @@ namespace NHttp
 
         public TimeSpan ShutdownTimeout { get; set; }
 
+        [Obsolete]
         internal HttpServerUtility ServerUtility { get; private set; }
 
         internal HttpTimeoutManager TimeoutManager { get; private set; }
@@ -107,7 +108,11 @@ namespace NHttp
 
                 _listener = listener;
 
+                // We must still instantiate this object
+                // for backwards compatibility
+#pragma warning disable CS0612 // Type or member is obsolete
                 ServerUtility = new HttpServerUtility();
+#pragma warning restore CS0612 // Type or member is obsolete
 
                 Log.Info(String.Format("HTTP server running at {0}", EndPoint));
             }

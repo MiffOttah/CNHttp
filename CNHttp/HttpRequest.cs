@@ -230,7 +230,8 @@ namespace NHttp
             if (value.Length >= 2 && value[0] == '"' && value[^1] == '"')
                 value = value[1..^1];
 
-            return HttpUtil.UriDecode(value);
+            return WebUtility.UrlDecode(value);
+            //return HttpUtil.UriDecode(value);
         }
 
         private void ParsePath(HttpClient client)
@@ -339,7 +340,7 @@ namespace NHttp
             ServerVariables["REMOTE_PORT"] = null;
             ServerVariables["REQUEST_METHOD"] = RequestType;
             ServerVariables["SCRIPT_NAME"] = Path;
-            ServerVariables["SERVER_NAME"] = client.Server.ServerUtility.MachineName;
+            ServerVariables["SERVER_NAME"] = Environment.MachineName;
             ServerVariables["SERVER_PORT"] = client.Server.EndPoint.Port.ToString(CultureInfo.InvariantCulture);
             ServerVariables["SERVER_PROTOCOL"] = client.Protocol;
             ServerVariables["URL"] = Path;

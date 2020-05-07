@@ -11,13 +11,14 @@ namespace NHttp
             Context = context ?? throw new ArgumentNullException("context");
         }
 
-        public HttpContext Context { get; private set; }
+        public HttpContext Context { get; }
 
-        public HttpServerUtility Server { get { return Context.Server; } }
+        [Obsolete]
+        public HttpServerUtility Server => Context.Server;
 
-        public HttpRequest Request { get { return Context.Request; } }
+        public HttpRequest Request => Context.Request;
 
-        public HttpResponse Response { get { return Context.Response; } }
+        public HttpResponse Response => Context.Response;
     }
 
     public delegate void HttpRequestEventHandler(object sender, HttpRequestEventArgs e);

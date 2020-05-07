@@ -95,11 +95,13 @@ namespace NHttp
             }
         }
 
+        [Obsolete("Use the .NET builtin methods in System.Net.WebUtility intead.")]
         public static string UriDecode(string value)
         {
             return UriDecode(value, Encoding.UTF8);
         }
 
+        [Obsolete("Use the .NET builtin methods in System.Net.WebUtility intead.")]
         public static string UriDecode(string value, Encoding encoding)
         {
             if (value == null)
@@ -117,7 +119,8 @@ namespace NHttp
                     i < value.Length - 2 &&
                     IsHex(value[i + 1]) &&
                     IsHex(value[i + 2])
-                ) {
+                )
+                {
                     result[length++] = (byte)(HexToInt(value[i + 1]) * 16 + HexToInt(value[i + 2]));
 
                     i += 2;
@@ -140,6 +143,7 @@ namespace NHttp
             return encoding.GetString(result, 0, length);
         }
 
+        [Obsolete("Use the .NET builtin methods in System.Net.WebUtility intead.")]
         private static bool IsHex(char value)
         {
             switch (value)
@@ -173,6 +177,7 @@ namespace NHttp
             }
         }
 
+        [Obsolete("Use the .NET builtin methods in System.Net.WebUtility intead.")]
         private static int HexToInt(char value)
         {
             switch (value)
@@ -218,6 +223,7 @@ namespace NHttp
             }
         }
 
+        [Obsolete("Use the .NET builtin methods in System.Net.WebUtility intead.")]
         public static string HtmlEncode(string value)
         {
             if (value == null)
@@ -249,6 +255,7 @@ namespace NHttp
             return sb.ToString();
         }
 
+        [Obsolete("Use the .NET builtin methods in System.Net.WebUtility intead.")]
         public static string HtmlDecode(string value)
         {
             if (value == null)

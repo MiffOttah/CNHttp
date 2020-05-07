@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace NHttp
 {
@@ -8,15 +6,20 @@ namespace NHttp
     {
         internal HttpContext(HttpClient client)
         {
+            // Still set the obsolete entry.
+#pragma warning disable CS0618 // Type or member is obsolete
             Server = client.Server.ServerUtility;
+#pragma warning restore CS0618 // Type or member is obsolete
+
             Request = new HttpRequest(client);
             Response = new HttpResponse(this);
         }
 
-        public HttpServerUtility Server { get; private set; }
+        [Obsolete("Use the .NET builtin methods in System.Net.WebUtility intead.")]
+        public HttpServerUtility Server { get; }
 
-        public HttpRequest Request { get; private set; }
+        public HttpRequest Request { get; }
 
-        public HttpResponse Response { get; private set; }
+        public HttpResponse Response { get; }
     }
 }

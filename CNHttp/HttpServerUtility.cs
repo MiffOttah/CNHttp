@@ -4,6 +4,7 @@ using System.Text;
 
 namespace NHttp
 {
+    [Obsolete("Use the .NET builtin methods in System.Net.WebUtility intead.")]
     public class HttpServerUtility
     {
         internal HttpServerUtility()
