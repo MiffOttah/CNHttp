@@ -56,9 +56,8 @@ namespace NHttp
                 if (value != null)
                 {
                     string[] parts = value.Split(new[] { ' ' }, 2);
-                    int statusCode;
 
-                    if (int.TryParse(parts[0], out statusCode))
+                    if (int.TryParse(parts[0], out int statusCode))
                     {
                         StatusCode = statusCode;
 
@@ -73,10 +72,7 @@ namespace NHttp
 
         internal HttpResponse(HttpContext context)
         {
-            if (context == null)
-                throw new ArgumentNullException("context");
-
-            _context = context;
+            _context = context ?? throw new ArgumentNullException("context");
 
             CacheControl = "private";
             CharSet = "utf-8";

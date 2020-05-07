@@ -8,7 +8,6 @@ namespace NHttp
 {
     internal class HttpMultiPartRequestParser : HttpRequestParser
     {
-        private static readonly ILog Log = LogManager.GetLogger(typeof(HttpMultiPartRequestParser));
         private static readonly byte[] MoreBoundary = Encoding.ASCII.GetBytes("\r\n");
         private static readonly byte[] EndBoundary = Encoding.ASCII.GetBytes("--");
 
@@ -83,9 +82,7 @@ namespace NHttp
                 {
                     // Test whether we're reading a file or a field.
 
-                    string contentDispositionHeader;
-
-                    if (!_headers.TryGetValue("Content-Disposition", out contentDispositionHeader))
+                    if (!_headers.TryGetValue("Content-Disposition", out string contentDispositionHeader))
                         throw new ProtocolException("Expected Content-Disposition header with multipart");
 
                     parts = contentDispositionHeader.Split(';');

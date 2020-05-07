@@ -54,13 +54,8 @@ namespace NHttp
 
         public HttpClient(HttpServer server, TcpClient client)
         {
-            if (server == null)
-                throw new ArgumentNullException("server");
-            if (client == null)
-                throw new ArgumentNullException("client");
-
-            Server = server;
-            TcpClient = client;
+            Server = server ?? throw new ArgumentNullException("server");
+            TcpClient = client ?? throw new ArgumentNullException("client");
 
             ReadBuffer = new HttpReadBuffer(server.ReadBufferSize);
             _writeBuffer = new byte[server.WriteBufferSize];
@@ -284,10 +279,7 @@ namespace NHttp
         private bool ProcessExpectHeader()
         {
             // Process the Expect: 100-continue header.
-
-            string expectHeader;
-
-            if (Headers.TryGetValue("Expect", out expectHeader))
+            if (Headers.TryGetValue("Expect", out string expectHeader))
             {
                 // Remove the expect header for the next run.
 
@@ -298,8 +290,8 @@ namespace NHttp
                 if (pos != -1)
                     expectHeader = expectHeader.Substring(0, pos).Trim();
 
-                if (!String.Equals("100-continue", expectHeader, StringComparison.OrdinalIgnoreCase))
-                    throw new ProtocolException(String.Format("Could not process Expect header '{0}'", expectHeader));
+                if (!string.Equals("100-continue", expectHeader, StringComparison.OrdinalIgnoreCase))
+                    throw new ProtocolException(string.Format("Could not process Expect header '{0}'", expectHeader));
 
                 SendContinueResponse();
                 return true;
@@ -311,21 +303,16 @@ namespace NHttp
         private bool ProcessContentLengthHeader()
         {
             // Read the content.
-
-            string contentLengthHeader;
-
-            if (Headers.TryGetValue("Content-Length", out contentLengthHeader))
+            if (Headers.TryGetValue("Content-Length", out string contentLengthHeader))
             {
-                int contentLength;
 
-                if (!int.TryParse(contentLengthHeader, out contentLength))
-                    throw new ProtocolException(String.Format("Could not parse Content-Length header '{0}'", contentLengthHeader));
+                if (!int.TryParse(contentLengthHeader, out int contentLength))
+                    throw new ProtocolException(string.Format("Could not parse Content-Length header '{0}'", contentLengthHeader));
 
-                string contentTypeHeader;
                 string contentType = null;
                 string contentTypeExtra = null;
 
-                if (Headers.TryGetValue("Content-Type", out contentTypeHeader))
+                if (Headers.TryGetValue("Content-Type", out string contentTypeHeader))
                 {
                     string[] parts = contentTypeHeader.Split(new[] { ';' }, 2);
 
@@ -354,7 +341,7 @@ namespace NHttp
 
                             if (
                                 parts.Length == 2 &&
-                                String.Equals(parts[0], "boundary", StringComparison.OrdinalIgnoreCase)
+                                string.Equals(parts[0], "boundary", StringComparison.OrdinalIgnoreCase)
                             )
                                 boundary = parts[1];
                         }
@@ -595,15 +582,14 @@ namespace NHttp
 
         private void ProcessRequestCompleted()
         {
-            string connectionHeader;
 
             // Do not accept new requests when the server is stopping.
 
             if (
                 !_errored &&
                 Server.State == HttpServerState.Started &&
-                Headers.TryGetValue("Connection", out connectionHeader) &&
-                String.Equals(connectionHeader, "keep-alive", StringComparison.OrdinalIgnoreCase)
+                Headers.TryGetValue("Connection", out string connectionHeader) &&
+                string.Equals(connectionHeader, "keep-alive", StringComparison.OrdinalIgnoreCase)
             )
                 BeginRequest();
             else

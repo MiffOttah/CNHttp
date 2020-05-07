@@ -20,22 +20,13 @@ namespace NHttp
         /// <exception cref="ArgumentNullException">stream is null</exception>
         public HttpOutputStream(MemoryStream stream)
         {
-            if (stream == null)
-            {
-                throw new ArgumentNullException("stream");
-            }
-            this.stream = stream;
+            BaseStream = stream ?? throw new ArgumentNullException("stream");
         }
-
-        MemoryStream stream;
 
         /// <summary>
         /// Stream wrapped by this wrapper
         /// </summary>
-        internal MemoryStream BaseStream
-        {
-            get { return stream; }
-        }
+        internal MemoryStream BaseStream { get; }
 
         /// <summary>
         /// Whether this stream has been closed or not
@@ -78,7 +69,7 @@ namespace NHttp
                                                AsyncCallback callback, object state)
         {
             CheckClosed();
-            return stream.BeginRead(buffer, offset, count, callback, state);
+            return BaseStream.BeginRead(buffer, offset, count, callback, state);
         }
 
         /// <summary>
@@ -102,7 +93,7 @@ namespace NHttp
                                                 AsyncCallback callback, object state)
         {
             CheckClosed();
-            return stream.BeginWrite(buffer, offset, count, callback, state);
+            return BaseStream.BeginWrite(buffer, offset, count, callback, state);
         }
 
         /// <summary>
@@ -110,7 +101,7 @@ namespace NHttp
         /// </summary>
         public override bool CanRead
         {
-            get { return closed ? false : stream.CanRead; }
+            get { return closed ? false : BaseStream.CanRead; }
         }
 
         /// <summary>
@@ -118,7 +109,7 @@ namespace NHttp
         /// </summary>
         public override bool CanSeek
         {
-            get { return closed ? false : stream.CanSeek; }
+            get { return closed ? false : BaseStream.CanSeek; }
         }
 
         /// <summary>
@@ -126,7 +117,7 @@ namespace NHttp
         /// </summary>
         public override bool CanWrite
         {
-            get { return closed ? false : stream.CanWrite; }
+            get { return closed ? false : BaseStream.CanWrite; }
         }
 
         /// <summary>
@@ -138,7 +129,7 @@ namespace NHttp
         {
             if (!closed)
             {
-                stream.Flush();
+                BaseStream.Flush();
             }
             closed = true;
         }
@@ -158,7 +149,7 @@ namespace NHttp
         public override int EndRead(IAsyncResult asyncResult)
         {
             CheckClosed();
-            return stream.EndRead(asyncResult);
+            return BaseStream.EndRead(asyncResult);
         }
 
         /// <summary>
@@ -168,7 +159,7 @@ namespace NHttp
         public override void EndWrite(IAsyncResult asyncResult)
         {
             CheckClosed();
-            stream.EndWrite(asyncResult);
+            BaseStream.EndWrite(asyncResult);
         }
 
         /// <summary>
@@ -177,7 +168,7 @@ namespace NHttp
         public override void Flush()
         {
             CheckClosed();
-            stream.Flush();
+            BaseStream.Flush();
         }
 
         /// <summary>
@@ -197,7 +188,7 @@ namespace NHttp
             get
             {
                 CheckClosed();
-                return stream.Length;
+                return BaseStream.Length;
             }
         }
 
@@ -209,12 +200,12 @@ namespace NHttp
             get
             {
                 CheckClosed();
-                return stream.Position;
+                return BaseStream.Position;
             }
             set
             {
                 CheckClosed();
-                stream.Position = value;
+                BaseStream.Position = value;
             }
         }
 
@@ -243,7 +234,7 @@ namespace NHttp
         public override int Read(byte[] buffer, int offset, int count)
         {
             CheckClosed();
-            return stream.Read(buffer, offset, count);
+            return BaseStream.Read(buffer, offset, count);
         }
 
         /// <summary>
@@ -254,7 +245,7 @@ namespace NHttp
         public override int ReadByte()
         {
             CheckClosed();
-            return stream.ReadByte();
+            return BaseStream.ReadByte();
         }
 
         /// <summary>
@@ -269,7 +260,7 @@ namespace NHttp
         public override long Seek(long offset, SeekOrigin origin)
         {
             CheckClosed();
-            return stream.Seek(offset, origin);
+            return BaseStream.Seek(offset, origin);
         }
 
         /// <summary>
@@ -279,7 +270,7 @@ namespace NHttp
         public override void SetLength(long value)
         {
             CheckClosed();
-            stream.SetLength(value);
+            BaseStream.SetLength(value);
         }
 
         /// <summary>
@@ -298,7 +289,7 @@ namespace NHttp
         public override void Write(byte[] buffer, int offset, int count)
         {
             CheckClosed();
-            stream.Write(buffer, offset, count);
+            BaseStream.Write(buffer, offset, count);
         }
 
         /// <summary>
@@ -309,7 +300,7 @@ namespace NHttp
         public override void WriteByte(byte value)
         {
             CheckClosed();
-            stream.WriteByte(value);
+            BaseStream.WriteByte(value);
         }
         #endregion
     }

@@ -37,30 +37,21 @@ namespace NHttp
 
         protected virtual void OnRequestReceived(HttpRequestEventArgs e)
         {
-            var ev = RequestReceived;
-
-            if (ev != null)
-                ev(this, e);
+            RequestReceived?.Invoke(this, e);
         }
 
         public event HttpExceptionEventHandler UnhandledException;
 
         protected virtual void OnUnhandledException(HttpExceptionEventArgs e)
         {
-            var ev = UnhandledException;
-
-            if (ev != null)
-                ev(this, e);
+            UnhandledException?.Invoke(this, e);
         }
 
         public event EventHandler StateChanged;
 
         protected virtual void OnStateChanged(EventArgs e)
         {
-            var ev = StateChanged;
-
-            if (ev != null)
-                ev(this, e);
+            StateChanged?.Invoke(this, e);
         }
 
         public IPEndPoint EndPoint { get; set; }

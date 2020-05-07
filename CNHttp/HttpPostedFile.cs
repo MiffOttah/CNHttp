@@ -9,15 +9,10 @@ namespace NHttp
     {
         public HttpPostedFile(int contentLength, string contentType, string fileName, Stream inputStream)
         {
-            if (fileName == null)
-                throw new ArgumentNullException("fileName");
-            if (inputStream == null)
-                throw new ArgumentNullException("inputStream");
-
             ContentLength = contentLength;
             ContentType = contentType;
-            FileName = fileName;
-            InputStream = inputStream;
+            FileName = fileName ?? throw new ArgumentNullException("fileName");
+            InputStream = inputStream ?? throw new ArgumentNullException("inputStream");
         }
 
         public int ContentLength { get; private set; }

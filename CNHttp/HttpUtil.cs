@@ -227,9 +227,8 @@ namespace NHttp
 
             foreach (char c in value)
             {
-                string entity;
 
-                if (_htmlEntitiesByNumber.TryGetValue(c, out entity))
+                if (_htmlEntitiesByNumber.TryGetValue(c, out string entity))
                 {
                     sb.Append("&");
                     sb.Append(entity);
@@ -325,7 +324,7 @@ namespace NHttp
 
                         // Convert the numeric entity to unicode.
 
-                        string numericEntity = value.Substring(i + offset, endPosition - (i + offset));
+                        string numericEntity = value[(i + offset)..endPosition];
 
                         sb.Append((char)int.Parse(numericEntity, isHexNumeric ? NumberStyles.HexNumber : NumberStyles.Integer));
 
@@ -333,11 +332,10 @@ namespace NHttp
                     }
                     else
                     {
-                        string entity = value.Substring(i + 1, endPosition - (i + 1));
+                        string entity = value[(i + 1)..endPosition];
 
-                        int codePoint;
 
-                        if (_htmlEntitiesByEntity.TryGetValue(entity, out codePoint))
+                        if (_htmlEntitiesByEntity.TryGetValue(entity, out int codePoint))
                         {
                             sb.Append((char)codePoint);
 

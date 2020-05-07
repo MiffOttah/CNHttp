@@ -12,10 +12,7 @@ namespace NHttp
 
         protected HttpRequestParser(HttpClient client, int contentLength)
         {
-            if (client == null)
-                throw new ArgumentNullException("client");
-
-            Client = client;
+            Client = client ?? throw new ArgumentNullException("client");
             ContentLength = contentLength;
         }
 

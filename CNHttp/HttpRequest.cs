@@ -86,11 +86,10 @@ namespace NHttp
         {
             Headers = CreateCollection(client.Headers);
 
-            string header;
 
             // Parse Accept.
 
-            if (client.Headers.TryGetValue("Accept", out header))
+            if (client.Headers.TryGetValue("Accept", out string header))
             {
                 string[] parts = header.Split(',');
 
@@ -124,12 +123,9 @@ namespace NHttp
 
             // Parse Content-Length.
 
-            if (client.Headers.TryGetValue("Content-Length", out header))
+            if (client.Headers.TryGetValue("Content-Length", out header) && int.TryParse(header, out int contentLength))
             {
-                int contentLength;
-
-                if (int.TryParse(header, out contentLength))
-                    ContentLength = contentLength;
+                ContentLength = contentLength;
             }
 
             // Parse Referer.
@@ -190,9 +186,7 @@ namespace NHttp
                 string name = null;
                 string fileName = null;
 
-                string header;
-
-                if (item.Headers.TryGetValue("Content-Disposition", out header))
+                if (item.Headers.TryGetValue("Content-Disposition", out string header))
                 {
                     string[] parts = header.Split(';');
 
@@ -232,8 +226,9 @@ namespace NHttp
             if (value.Length == 0)
                 return value;
 
-            if (value.Length >= 2 && value[0] == '"' && value[value.Length - 1] == '"')
-                value = value.Substring(1, value.Length - 2);
+            // if value is surrounded by quotes, remove them
+            if (value.Length >= 2 && value[0] == '"' && value[^1] == '"')
+                value = value[1..^1];
 
             return HttpUtil.UriDecode(value);
         }
@@ -252,9 +247,8 @@ namespace NHttp
 
             string host;
             string port;
-            string hostHeader;
 
-            if (client.Headers.TryGetValue("Host", out hostHeader))
+            if (client.Headers.TryGetValue("Host", out string hostHeader))
             {
                 parts = hostHeader.Split(new[] { ':' }, 2);
 
@@ -270,7 +264,7 @@ namespace NHttp
                 var endPoint = client.Server.EndPoint;
 
                 host = endPoint.Address.ToString();
-                
+
                 if (endPoint.Port == 80)
                     port = null;
                 else

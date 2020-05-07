@@ -18,10 +18,7 @@ namespace NHttp
 
         public HttpCookie(string name, string value)
         {
-            if (name == null)
-                throw new ArgumentNullException("name");
-
-            Name = name;
+            Name = name ?? throw new ArgumentNullException("name");
             Expires = DateTime.MinValue;
             Path = "/";
 

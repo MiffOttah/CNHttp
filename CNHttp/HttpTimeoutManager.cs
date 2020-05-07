@@ -122,11 +122,8 @@ namespace NHttp
 
             public TimeoutItem(long expires, IAsyncResult asyncResult, IDisposable disposable)
             {
-                if (asyncResult == null)
-                    throw new ArgumentNullException(nameof(asyncResult));
-
                 Expires = expires;
-                AsyncResult = asyncResult;
+                AsyncResult = asyncResult ?? throw new ArgumentNullException(nameof(asyncResult));
                 Disposable = disposable;
             }
         }

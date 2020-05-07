@@ -13,10 +13,7 @@ namespace NHttp
         public HttpExceptionEventArgs(HttpContext context, Exception exception)
             : base(context)
         {
-            if (exception == null)
-                throw new ArgumentNullException("exception");
-
-            Exception = exception;
+            Exception = exception ?? throw new ArgumentNullException("exception");
         }
     }
 
